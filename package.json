@@ -18,9 +18,12 @@
   },
   "homepage": "https://github.com/jjtiger/Blockchain_Business_Developement_Tool#readme",
   "dependencies": {
+    "@walletconnect/web3-provider": "^1.7.8",
     "dotenv": "^16.0.1",
+    "ethers": "^5.6.7",
     "express": "^4.18.1",
-    "express.js": "^1.0.0"
+    "express.js": "^1.0.0",
+    "web3": "^1.7.3"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
