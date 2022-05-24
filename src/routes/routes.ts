@@ -8,10 +8,10 @@ export interface RequestArguements {
   method: string;
   params?: unknown[] | object;
 }
-export async function mint(res: Request, resp: Response) {
+export async function mint(req: Request, resp: Response) {
   await provider.enable();
   const web3Provider = new providers.Web3Provider(provider);
-  const request: RequestArguements = res.body;
+  const request: RequestArguements = req.body;
   const result = await provider.request(request);
   return result;
 }
