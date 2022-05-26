@@ -6,7 +6,7 @@ contract Pass is ERC1155 {
     address payable owner;
     string id;
     constructor(string memory _id) {
-        owner = msg.sender;
+        owner = payable(msg.sender);
         id = id;
     }
 
