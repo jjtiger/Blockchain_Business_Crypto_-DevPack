@@ -31,6 +31,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
     address payable public owner;
     uint public transferFee;
+    uint public constant divisor = 1000000;
 
 
     modifier onlyOwner {
@@ -43,7 +44,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     constructor(string memory uri_) {
         _setURI(uri_);
         owner = payable(msg.sender);
-        transferFee = 100000000000000000;
+        transferFee = 5000;
     }
 
     /**
@@ -393,8 +394,11 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         
         if(operator != owner) {
-            require(msg.value == transferFee, "must include transferFee");
-            owner.transfer(msg.value);
+            require(msg.value > 0, "must include transferFee");
+            uint total = msg.value;
+            uint ownerFee = total * transferFee;
+            ownerFee = ownerFee / divisor;
+            owner.transfer(ownerFee);
         }
 
     }

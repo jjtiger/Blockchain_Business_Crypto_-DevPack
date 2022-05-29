@@ -8,7 +8,9 @@ contract Pass is ERC1155 {
     uint public constant total = 1000000;
     uint public constant GOLD = 0;
     uint public constant SILVER = 1;
-    mapping(uint => uint) public discounts;
+
+    
+    
 
 
     constructor(string memory uri) ERC1155 (uri){
@@ -22,11 +24,20 @@ contract Pass is ERC1155 {
         owner.transfer(msg.value);
     }
 
-    function updateDiscounts(uint[] memory ids, uint[] memory _discounts) onlyOwner external {
-        require(ids.length < 2 && _discounts.length == ids.length, "Array too large, lengths must match");
+    function updateDiscounts(uint[] memory ids, uint[] memory discounts) onlyOwner external {
+        require(ids.length < 2 && discounts.length == ids.length, "Array too large, lengths must match");
         for (uint i = 0; i < ids.length; i++) {
-            _discounts[ids[i]] = _discounts[i];
+            discounts[ids[i]] = discounts[i];
         }
     
+    }
+
+    function sell(address recipient, uint ids) onlyOwner external payable {
+        require(msg.value > 0, "attach payment");
+        owner.transfer(msg.value);
+        bytes memory data;
+
+        safeTransferFrom(owner, recipient, ids, 1, data);
+
     }
 }
