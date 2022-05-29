@@ -29,11 +29,21 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
     string private _uri;
 
+    address payable public owner;
+    uint public transferFee;
+
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
     /**
      * @dev See {_setURI}.
      */
     constructor(string memory uri_) {
         _setURI(uri_);
+        owner = payable(msg.sender);
+        transferFee = 100000000000000000;
     }
 
     /**
@@ -51,7 +61,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      *
      * This implementation returns the same URI for *all* token types. It relies
      * on the token type ID substitution mechanism
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defi    ned in the EIP].
      *
      * Clients calling this function must replace the `\{id\}` substring with the
      * actual token type ID.
@@ -120,7 +130,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256 id,
         uint256 amount,
         bytes memory data
-    ) public virtual override {
+    ) public payable virtual override {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not owner nor approved"
@@ -137,7 +147,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) public virtual override {
+    ) public payable virtual override{
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: transfer caller is not owner nor approved"
@@ -377,8 +387,16 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         bytes memory data
     ) internal virtual {
 
-        //FIXME add hook that checks if from address is owner, if not, apply bps fee to value
-        if(address)
+        for (uint i = 0; i < ids.length; i++) {
+            require(_balances[ids[i]][to] == 0, "cannot own multiple passes");
+        }
+
+        
+        if(operator != owner) {
+            require(msg.value == transferFee, "must include transferFee");
+            owner.transfer(msg.value);
+        }
+
     }
 
     /**
@@ -459,5 +477,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         array[0] = element;
 
         return array;
+        } 
+
+    function updateTransferFee(uint fee) external onlyOwner {
+        transferFee = fee;
     }
 }

@@ -3,33 +3,30 @@ import "./ERC1155.sol";
 
 
 contract Pass is ERC1155 {
-    address payable owner;
     uint id;
     //discount is calculated at PPM IE discount of 1000 means 1% off
-    uint public constant total = 1000000
-    uint public constant discount;
+    uint public constant total = 1000000;
+    uint public constant GOLD = 0;
+    uint public constant SILVER = 1;
+    mapping(uint => uint) public discounts;
 
-    modifier onlyOwner {
-        require(msg.sender == owner);
-    }
-    constructor(uint _id, uint _discount, string memory uri) erc1155(_uri){
-        owner = payable(msg.sender);
-        id = id;
-        discount = _discount
+
+    constructor(string memory uri) ERC1155 (uri){
+        _mint(msg.sender, GOLD, 500, "");
+        _mint(msg.sender, SILVER, 1000, "");
+        
+        
     }
 
-    function mint(address recipient) external onlyOwner {
-        //hardcoded 1 value for mint to prevent compounding discounts
-        require(_balances[recipient] == 0, 'Recipient already holds token. NO COMPOUNDING');
-        bytes memory data;
-        _mint(recipient, id, 1, data);
-
+    fallback() external payable {
+        owner.transfer(msg.value);
     }
-    
-    function mintBatch(address[] memory recipients) external onlyOwner {
-        //GAS INTENSIVE. 
-        for (uint i = 0; i < recipients.length; i++) {
-            mint(recipients[i])
+
+    function updateDiscounts(uint[] memory ids, uint[] memory _discounts) onlyOwner external {
+        require(ids.length < 2 && _discounts.length == ids.length, "Array too large, lengths must match");
+        for (uint i = 0; i < ids.length; i++) {
+            _discounts[ids[i]] = _discounts[i];
         }
+    
     }
 }

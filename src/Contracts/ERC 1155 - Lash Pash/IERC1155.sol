@@ -102,7 +102,7 @@ interface IERC1155 is IERC165 {
         uint256 id,
         uint256 amount,
         bytes calldata data
-    ) external;
+    ) external payable;
 
     /**
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
@@ -121,5 +121,5 @@ interface IERC1155 is IERC165 {
         uint256[] calldata ids,
         uint256[] calldata amounts,
         bytes calldata data
-    ) external;
+    ) external payable;
 }
