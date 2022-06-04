@@ -6,17 +6,16 @@ contract Pass is ERC1155 {
     uint id;
     //discount is calculated at PPM IE discount of 1000 means 1% off
     uint public constant total = 1000000;
-    uint public constant GOLD = 0;
-    uint public constant SILVER = 1;
-
-    
-    
-
+    uint8 public constant GOLD = 0;
+    uint8 public constant SILVER = 1;
+    mapping(uint8 => uint) public costs;
 
     constructor(string memory uri) ERC1155 (uri){
-        _mint(msg.sender, GOLD, 500, "");
-        _mint(msg.sender, SILVER, 1000, "");
-        
+        _mint(address(this), GOLD, 500, "");
+        _mint(address(this), SILVER, 1000, "");
+        costs[GOLD] = 1 gwei;
+        costs[SILVER] = 1 gwei;
+    
         
     }
 
@@ -32,12 +31,22 @@ contract Pass is ERC1155 {
     
     }
 
-    function sell(address recipient, uint ids) onlyOwner external payable {
-        require(msg.value > 0, "attach payment");
+    function updateCost(uint8 _id, uint _cost) onlyOwner external {
+        require (_cost > 0, "cost cannot be zero" );
+        costs[_id] = _cost;
+    }
+
+    function buy(address recipient, uint8 _id) external payable {
+        uint _cost = costs[_id];
+        require(_cost > 0, "PASS DOES NOT HAVE COST ASSIGNED");
+        require(msg.value > _cost, "attach payment");
         owner.transfer(msg.value);
         bytes memory data;
-
-        safeTransferFrom(owner, recipient, ids, 1, data);
-
+        
+        _safeTransferFrom(address(this), recipient, _id, 1, data);
     }
+
+    function approve() external {
+        setApprovalForAll(address(this), true);
+     }
 }

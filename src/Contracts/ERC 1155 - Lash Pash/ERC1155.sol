@@ -387,19 +387,25 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {
+        
 
+        uint owned = 0;
         for (uint i = 0; i < ids.length; i++) {
-            require(_balances[ids[i]][to] == 0, "cannot own multiple passes");
+            owned = owned + _balances[ids[i]][to];
+            require(owned <= 1, "cannot own multiple passes");
+            if(operator != owner) {
+                uint balance = _balances[ids[i]][to];
+                if (balance > 0) {
+                    require(msg.value > 0, "must include transferFee");
+                    uint total = msg.value;
+                    uint ownerFee = total * transferFee;
+                    ownerFee = ownerFee / divisor;
+                    owner.transfer(ownerFee);
+                }
+            }
         }
 
         
-        if(operator != owner) {
-            require(msg.value > 0, "must include transferFee");
-            uint total = msg.value;
-            uint ownerFee = total * transferFee;
-            ownerFee = ownerFee / divisor;
-            owner.transfer(ownerFee);
-        }
 
     }
 
