@@ -3,15 +3,54 @@ import "./ERC1155.sol";
 
 
 contract Pass is ERC1155 {
-    address payable owner;
-    string id;
-    constructor(string memory _id) {
-        owner = payable(msg.sender);
-        id = id;
+    uint id;
+    //discount is calculated at PPM IE discount of 1000 means 1% off
+    uint public constant total = 1000000;
+    uint8 public constant GOLD = 0;
+    uint8 public constant SILVER = 1;
+    mapping(uint8 => uint) public costs;
+
+    constructor(string memory uri) ERC1155 (uri){
+        _mint(address(this), GOLD, 500, "");
+        _mint(address(this), SILVER, 1000, "");
+        costs[GOLD] = 10000 gwei;
+        costs[SILVER] = 5000 gwei;
+    
+        
     }
 
-    function mint(address recipient, bytes memory data) public {
-        _mint(recipient, id, 1, data);
-
+    fallback() external payable {
+        owner.transfer(msg.value);
     }
+
+    function updateOwner(address newOwner) onlyOwner external {
+        owner = newOwner;
+    }
+
+    function updateDiscounts(uint[] memory ids, uint[] memory discounts) onlyOwner external {
+        require(ids.length < 2 && discounts.length == ids.length, "Array too large, lengths must match");
+        for (uint i = 0; i < ids.length; i++) {
+            discounts[ids[i]] = discounts[i];
+        }
+    
+    }
+
+    function updateCost(uint8 _id, uint _cost) onlyOwner external {
+        require (_cost > 0, "cost cannot be zero" );
+        costs[_id] = _cost;
+    }
+
+    function buy(address recipient, uint8 _id) external payable {
+        uint _cost = costs[_id];
+        require(_cost > 0, "PASS DOES NOT HAVE COST ASSIGNED");
+        require(msg.value > _cost, "attach payment");
+        owner.transfer(msg.value);
+        bytes memory data;
+        
+        _safeTransferFrom(address(this), recipient, _id, 1, data);
+    }
+
+    function approve() external {
+        setApprovalForAll(address(this), true);
+     }
 }

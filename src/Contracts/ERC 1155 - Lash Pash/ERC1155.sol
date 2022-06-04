@@ -29,11 +29,22 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
     string private _uri;
 
+    address payable public owner;
+    uint public transferFee;
+    uint public constant divisor = 1000000;
+
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
     /**
      * @dev See {_setURI}.
      */
     constructor(string memory uri_) {
         _setURI(uri_);
+        owner = payable(msg.sender);
+        transferFee = 5000;
     }
 
     /**
@@ -51,7 +62,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      *
      * This implementation returns the same URI for *all* token types. It relies
      * on the token type ID substitution mechanism
-     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defi    ned in the EIP].
      *
      * Clients calling this function must replace the `\{id\}` substring with the
      * actual token type ID.
@@ -120,7 +131,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256 id,
         uint256 amount,
         bytes memory data
-    ) public virtual override {
+    ) public payable virtual override {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not owner nor approved"
@@ -137,7 +148,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) public virtual override {
+    ) public payable virtual override{
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: transfer caller is not owner nor approved"
@@ -296,30 +307,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
      * acceptance magic value.
      */
-    function _mintBatch(
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual {
-        require(to != address(0), "ERC1155: mint to the zero address");
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
 
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
-
-        for (uint256 i = 0; i < ids.length; i++) {
-            _balances[ids[i]][to] += amounts[i];
-        }
-
-        emit TransferBatch(operator, address(0), to, ids, amounts);
-
-        _afterTokenTransfer(operator, address(0), to, ids, amounts, data);
-
-        _doSafeBatchTransferAcceptanceCheck(operator, address(0), to, ids, amounts, data);
-    }
-
+     //todo maybe change this to an array of addresses being minted
+    
     /**
      * @dev Destroys `amount` tokens of token type `id` from `from`
      *
@@ -353,44 +343,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _afterTokenTransfer(operator, from, address(0), ids, amounts, "");
     }
-
-    /**
-     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_burn}.
-     *
-     * Emits a {TransferBatch} event.
-     *
-     * Requirements:
-     *
-     * - `ids` and `amounts` must have the same length.
-     */
-    function _burnBatch(
-        address from,
-        uint256[] memory ids,
-        uint256[] memory amounts
-    ) internal virtual {
-        require(from != address(0), "ERC1155: burn from the zero address");
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, from, address(0), ids, amounts, "");
-
-        for (uint256 i = 0; i < ids.length; i++) {
-            uint256 id = ids[i];
-            uint256 amount = amounts[i];
-
-            uint256 fromBalance = _balances[id][from];
-            require(fromBalance >= amount, "ERC1155: burn amount exceeds balance");
-            unchecked {
-                _balances[id][from] = fromBalance - amount;
-            }
-        }
-
-        emit TransferBatch(operator, from, address(0), ids, amounts);
-
-        _afterTokenTransfer(operator, from, address(0), ids, amounts, "");
-    }
-
+    
     /**
      * @dev Approve `operator` to operate on all of `owner` tokens
      *
@@ -433,7 +386,28 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual {}
+    ) internal virtual {
+        
+
+        uint owned = 0;
+        for (uint i = 0; i < ids.length; i++) {
+            owned = owned + _balances[ids[i]][to];
+            require(owned <= 1, "cannot own multiple passes");
+            if(operator != owner) {
+                uint balance = _balances[ids[i]][to];
+                if (balance > 0) {
+                    require(msg.value > 0, "must include transferFee");
+                    uint total = msg.value;
+                    uint ownerFee = total * transferFee;
+                    ownerFee = ownerFee / divisor;
+                    owner.transfer(ownerFee);
+                }
+            }
+        }
+
+        
+
+    }
 
     /**
      * @dev Hook that is called after any token transfer. This includes minting
@@ -513,5 +487,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         array[0] = element;
 
         return array;
+        } 
+
+    function updateTransferFee(uint fee) external onlyOwner {
+        transferFee = fee;
     }
 }
