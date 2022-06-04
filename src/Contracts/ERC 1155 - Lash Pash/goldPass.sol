@@ -4,17 +4,21 @@ import "./ERC1155.sol";
 
 contract Pass is ERC1155 {
     uint id;
-    //discount is calculated at PPM IE discount of 1000 means 1% off
+    //discount is calculated at PPM IE discount of 1000 means 0.1% off
     uint public constant total = 1000000;
     uint8 public constant GOLD = 0;
     uint8 public constant SILVER = 1;
     mapping(uint8 => uint) public costs;
+    mapping(uint8 => uint) public _discounts;
 
     constructor(string memory uri) ERC1155 (uri){
         _mint(address(this), GOLD, 500, "");
         _mint(address(this), SILVER, 1000, "");
         costs[GOLD] = 10000 gwei;
         costs[SILVER] = 5000 gwei;
+        _discounts[0] = 250000;
+        _discounts[1] = 100000;
+        
     
         
     }
@@ -30,7 +34,7 @@ contract Pass is ERC1155 {
     function updateDiscounts(uint[] memory ids, uint[] memory discounts) onlyOwner external {
         require(ids.length < 2 && discounts.length == ids.length, "Array too large, lengths must match");
         for (uint i = 0; i < ids.length; i++) {
-            discounts[ids[i]] = discounts[i];
+            _discounts[ids[i]] = discounts[i];
         }
     
     }
