@@ -13,14 +13,18 @@ contract Pass is ERC1155 {
     constructor(string memory uri) ERC1155 (uri){
         _mint(address(this), GOLD, 500, "");
         _mint(address(this), SILVER, 1000, "");
-        costs[GOLD] = 1 gwei;
-        costs[SILVER] = 1 gwei;
+        costs[GOLD] = 10000 gwei;
+        costs[SILVER] = 5000 gwei;
     
         
     }
 
     fallback() external payable {
         owner.transfer(msg.value);
+    }
+
+    function updateOwner(address newOwner) onlyOwner external {
+        owner = newOwner;
     }
 
     function updateDiscounts(uint[] memory ids, uint[] memory discounts) onlyOwner external {
