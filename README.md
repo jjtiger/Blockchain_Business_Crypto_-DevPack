@@ -40,10 +40,15 @@ Remix IDE, OpenZeppelin, VSCode, PyCharm, Ropsten, Streamlit, Metamask, Solidity
 
 ![PassTrasaction](https://user-images.githubusercontent.com/89318890/172288839-7ef1c333-5d37-4c88-9be6-feea4e704736.png)
 
+
+
+
 # Streamlit Front End 
 ## Demo of the contract being used to select the Gold or Silver Membership
 
 ![Streamlit app development](https://user-images.githubusercontent.com/89318890/172288887-bd3da595-b86d-4bb2-9f9e-bde9b10e7f25.png)
+
+![IMG_6990](https://user-images.githubusercontent.com/89318890/172743946-5b9e561a-dfe7-4b7c-b750-9dbf6b37ef22.jpeg)
 
 # NFT Membership program will feature a Gold and Silver tier. Each tier will offer exclusive membership perks such as discounts, Member Only events, swag bags, and air dropped tokens that can be used toward future services.
 
