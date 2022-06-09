@@ -50,6 +50,9 @@ Remix IDE, OpenZeppelin, VSCode, PyCharm, Ropsten, Streamlit, Metamask, Solidity
 
 ![IMG_6990](https://user-images.githubusercontent.com/89318890/172743946-5b9e561a-dfe7-4b7c-b750-9dbf6b37ef22.jpeg)
 
+![IMG_6983](https://user-images.githubusercontent.com/89318890/172744289-289e725b-eceb-405c-995b-4188fd583b8b.jpeg)
+
+
 # NFT Membership program will feature a Gold and Silver tier. Each tier will offer exclusive membership perks such as discounts, Member Only events, swag bags, and air dropped tokens that can be used toward future services.
 
 ![images](https://user-images.githubusercontent.com/89318890/172666699-d6ff830d-b122-413c-84d3-9aa1fd7268c6.png)
