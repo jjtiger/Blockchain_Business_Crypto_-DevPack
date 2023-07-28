@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 import "./ERC1155.sol";
-
+//Would be much better if this used an erc20 stable a la usdc for the costs of the nfts.
 
 contract Pass is ERC1155 {
     uint id;
