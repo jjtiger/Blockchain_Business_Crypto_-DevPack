@@ -22,6 +22,7 @@ contract Pass is ERC1155 {
     
         
     }
+    //todo add non reentrant modifier
 
     fallback() external payable {
         owner.transfer(msg.value);
