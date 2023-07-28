@@ -48,7 +48,7 @@ contract Pass is ERC1155 {
         uint _cost = costs[_id];
         require(_cost > 0, "PASS DOES NOT HAVE COST ASSIGNED");
         require(msg.value > _cost, "attach payment");
-        owner.transfer(msg.value);
+        owner.call{msg.value}("");
         bytes memory data;
         
         _safeTransferFrom(address(this), recipient, _id, 1, data);
